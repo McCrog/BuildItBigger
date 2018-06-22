@@ -48,5 +48,6 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
 
-    compile project(":javaJoker")
+    compile project(':javajoker')
+    compile project(":jokesfactory")
 }
