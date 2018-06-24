@@ -49,5 +49,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 
     compile project(':javajoker')
-    compile project(":jokesfactory")
+    compile project(':jokesfactory')
+    endpointsServer project(path: ':backend', configuration: 'endpoints')
 }
