@@ -1,13 +1,10 @@
 package com.udacity.gradle.builditbigger;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.udacity.gradle.builditbigger.backend.myApi.MyApi;
-import com.udacity.jokesfactory.JokeActivity;
 
 import java.io.IOException;
 
@@ -16,13 +13,18 @@ import java.io.IOException;
  *
  */
 
-public class EndpointAsyncTask extends AsyncTask<Context, Void, String> {
+public class EndpointAsyncTask extends AsyncTask<Void, Void, String> {
 
+    private OnEventListener<String> mCallBack;
     private static MyApi mApiService = null;
-    private Context mContext;
+    private Exception mException;
+
+    public EndpointAsyncTask(OnEventListener<String> mCallBack) {
+        this.mCallBack = mCallBack;
+    }
 
     @Override
-    protected String doInBackground(Context... contexts) {
+    protected String doInBackground(Void... params) {
         if (mApiService == null) {
             MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
                     new AndroidJsonFactory(), null)
@@ -31,20 +33,22 @@ public class EndpointAsyncTask extends AsyncTask<Context, Void, String> {
             mApiService = builder.build();
         }
 
-        mContext = contexts[0];
-
         try {
             return mApiService.getJoke().execute().getData();
         } catch (IOException e) {
-            return e.getMessage();
+            mException = e;
+            return mException.getMessage();
         }
     }
 
     @Override
     protected void onPostExecute(String result) {
-        String jokeIntentName = "JokeIntent";
-        Intent intent = new Intent(mContext, JokeActivity.class);
-        intent.putExtra(jokeIntentName, result);
-        mContext.startActivity(intent);
+        if (mCallBack != null) {
+            if (mException == null) {
+                mCallBack.onSuccess(result);
+            } else {
+                mCallBack.onFailure(mException);
+            }
+        }
     }
 }

@@ -5,6 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
+
+import com.udacity.jokesfactory.JokeActivity;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -38,6 +41,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void tellJoke(View view) {
-        new EndpointAsyncTask().execute(this);
+        EndpointAsyncTask task = new EndpointAsyncTask(new OnEventListener<String>() {
+            @Override
+            public void onSuccess(String result) {
+                startActivity(JokeActivity.newIntent(getApplicationContext(), result));
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+        task.execute();
     }
 }
